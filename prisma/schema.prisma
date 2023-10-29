@@ -1,0 +1,33 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id      Int       @id @default(autoincrement())
+  code    String    @unique
+  Counter Counter[]
+}
+
+model Counter {
+  id       Int        @id @default(autoincrement())
+  domain   String
+  key      String     @unique
+  user     User       @relation(fields: [userId], references: [id])
+  userId   Int
+  PageView PageView[]
+}
+
+model PageView {
+  id        Int      @id @default(autoincrement())
+  url       String
+  userIp    String
+  userAgent String
+  date      DateTime
+  counter   Counter  @relation(fields: [counterId], references: [id])
+  counterId Int
+}
