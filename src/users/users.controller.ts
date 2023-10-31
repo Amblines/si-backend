@@ -1,5 +1,6 @@
-import { Controller, Get, Post, Param } from '@nestjs/common';
+import { Controller, Post, Body, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from './users.service';
+import { CheckUserDto } from './dto/check-user.dto';
 
 @Controller('users')
 export class UsersController {
@@ -10,8 +11,16 @@ export class UsersController {
     return this.usersService.create();
   }
 
-  @Get(':id')
-  findOne(@Param('id') code: string) {
-    return this.usersService.findOne(code);
+  @Post('/check')
+  async check(@Body() checkUserDto: CheckUserDto) {
+    const user = await this.usersService.findOne(checkUserDto.code);
+
+    if (!user) {
+      throw new UnauthorizedException(
+        'Пользователя с таким кодом не существует',
+      );
+    }
+
+    return user;
   }
 }

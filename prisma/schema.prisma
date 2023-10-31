@@ -27,7 +27,8 @@ model PageView {
   url       String
   userIp    String
   userAgent String
+  referer   String?
   date      DateTime
-  counter   Counter  @relation(fields: [counterId], references: [id])
+  counter   Counter  @relation(fields: [counterId], references: [id], onDelete: Cascade)
   counterId Int
 }

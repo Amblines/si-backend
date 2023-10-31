@@ -19,7 +19,7 @@ export class CountersController {
   @Post()
   @UseGuards(AuthGuard)
   create(@Body() createCounterDto: CreateCounterDto, @Req() request: Request) {
-    return this.countersService.create(createCounterDto, request['user']);
+    return this.countersService.create(createCounterDto, request['user'].id);
   }
 
   @Get()
