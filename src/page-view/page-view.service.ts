@@ -110,32 +110,29 @@ export class PageViewService {
     });
   }
 
-  async findUniqueByInterval(interval: IntervalType, userId: number) {
-    const currentDate = dayjs();
-    const intervals: IntervalType[] = ['day', 'week', 'month', 'year'];
+  async findWithUniqueUsersByCounter(counterId: number) {
+    // count не поддерживает distinct
+    const result = this.prisma.pageView.findMany({
+      distinct: ['userIp'],
+      where: {
+        counterId,
+      },
+    });
 
-    if (!intervals.includes(interval)) {
-      throw new NotFoundException('Interval incorrect');
-    }
+    return (await result).length;
+  }
 
-    return this.prisma.pageView.count({
+  async findWithUniqueUsers(userId: number) {
+    // count не поддерживает distinct
+    const result = this.prisma.pageView.findMany({
+      distinct: ['userIp'],
       where: {
         counter: {
-          userId: userId,
-        },
-        date: {
-          gte: currentDate.subtract(1, interval).toISOString(),
-          lte: currentDate.toDate().toISOString(),
+          userId,
         },
       },
     });
-  }
 
-  findAll() {
-    return `This action returns all pageView`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} pageView`;
+    return (await result).length;
   }
 }

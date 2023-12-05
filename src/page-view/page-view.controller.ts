@@ -5,7 +5,6 @@ import {
   Body,
   Param,
   Req,
-  Ip,
   UseGuards,
   Query,
 } from '@nestjs/common';
@@ -13,6 +12,7 @@ import { PageViewService } from './page-view.service';
 import { CreatePageViewDto } from './dto/create-page-view.dto';
 import { IntervalType } from './types/interval.type';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { RealIP } from 'nestjs-real-ip';
 
 @Controller('page-view')
 export class PageViewController {
@@ -22,19 +22,15 @@ export class PageViewController {
   create(
     @Body() createPageViewDto: CreatePageViewDto,
     @Req() request: Request,
-    @Ip() ip: string,
+    @RealIP() ip: string,
   ) {
+    console.log(ip);
     return this.pageViewService.create(createPageViewDto, {
       domain: new URL(request.headers['origin']).hostname,
       ip: ip,
       userAgent: request.headers['user-agent'],
       referer: request.headers['referer'],
     });
-  }
-
-  @Get()
-  findAll() {
-    return this.pageViewService.findAll();
   }
 
   @Get('interval/:interval')
@@ -68,5 +64,17 @@ export class PageViewController {
     @Param('counterId') counterId: string,
   ) {
     return this.pageViewService.findLastByCounter(+limit, +counterId);
+  }
+
+  @Get('unique')
+  @UseGuards(AuthGuard)
+  findWithUniqueUsers(@Req() request: Request) {
+    return this.pageViewService.findWithUniqueUsers(request['user'].id);
+  }
+
+  @Get('unique/counter/:counterId')
+  @UseGuards(AuthGuard)
+  findWithUniqueUsersByCounter(@Param('counterId') counterId: string) {
+    return this.pageViewService.findWithUniqueUsersByCounter(+counterId);
   }
 }
